@@ -1,0 +1,18 @@
+---
+github_get_files_retries: 3
+github_get_files_delay: 5
+github_get_files_path_list: []
+github_get_files_http_headers:
+  Accept: "application/vnd.github.v3+json"
+
+token: ""
+branch: ""
+force: yes
+create_dest: yes
+create_dest_mode: ""
+recurse: no
+mode: "0755"
+skip_files:
+  - .gitignore
+  - README.md
+...

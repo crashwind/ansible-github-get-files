@@ -1,0 +1,8 @@
+---
+- hosts: localhost
+  roles:
+    - github-get-files
+  vars:
+    repo_name: crashwind/docker-ps
+    dest: /tmp/ansible/docker-ps
+...
