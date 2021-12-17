@@ -35,7 +35,7 @@ github_get_files_http_headers:  initial dict of http headers (default: {Accept: 
 Example Playbook
 ----------------
 
-```
+```yaml
 ---
 - hosts: localhost
   roles:
