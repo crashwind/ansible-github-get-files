@@ -8,20 +8,20 @@ Role Variables
 
 ### required
 ```
-repo_name:        full_name of repo (example: octocat/Hello-World)
-dest:             directory full path to download to
+github_get_files_repo_name:  full_name of repo (example: octocat/Hello-World)
+github_get_files_dest:       directory full path to download to
 ```
 
 ### optional
 ```
-token:            github token (example: ghp_qweASDzxc...)
-branch:           branch name. default branch will be used if not defined
-force:            will download the file every time and replace the file if the contents change (get_url 'force' parameter)
-create_dest:      create destination if not exists
-create_dest_mode: set mode to directories when creating
-recurse:          recursively set the specified file attributes on directory contents when creating destination
-mode:             the permissions the resulting filesystem object should have (get_url 'mode' parameter)
-skip_files:       list of files to skip download
+github_get_files_token:             github token (example: ghp_qweASDzxc...)
+github_get_files_branch:            branch name. default branch will be used if not defined
+github_get_files_force:             will download the file every time and replace the file if the contents change (get_url 'force' parameter)
+github_get_files_create_dest:       create destination if not exists
+github_get_files_create_dest_mode:  set mode to directories when creating
+github_get_files_recurse:           recursively set the specified file attributes on directory contents when creating destination
+github_get_files_mode:              the permissions the resulting filesystem object should have (get_url 'mode' parameter)
+github_get_files_skip_files:        list of files to skip download
 ```
 
 ### role internal variables
@@ -41,7 +41,7 @@ Example Playbook
   roles:
     - github-get-files
   vars:
-    repo_name: crashwind/docker-ps
-    dest: /tmp/ansible/docker-ps
+    github_get_files_repo_name: crashwind/docker-ps
+    github_get_files_dest: /tmp/ansible/docker-ps
 ...
 ```

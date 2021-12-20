@@ -5,14 +5,14 @@ github_get_files_path_list: []
 github_get_files_http_headers:
   Accept: "application/vnd.github.v3+json"
 
-token: ""
-branch: ""
-force: yes
-create_dest: yes
-create_dest_mode: ""
-recurse: no
-mode: "0755"
-skip_files:
+github_get_files_token: ""
+github_get_files_branch: ""
+github_get_files_force: yes
+github_get_files_create_dest: yes
+github_get_files_create_dest_mode: ""
+github_get_files_recurse: no
+github_get_files_mode: "0755"
+github_get_files_skip_files:
   - .gitignore
   - README.md
 ...

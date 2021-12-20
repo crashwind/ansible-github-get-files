@@ -3,6 +3,6 @@
   roles:
     - github-get-files
   vars:
-    repo_name: crashwind/docker-ps
-    dest: /tmp/ansible/docker-ps
+    github_get_files_repo_name: crashwind/docker-ps
+    github_get_files_dest: /tmp/ansible/docker-ps
 ...

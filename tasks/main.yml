@@ -11,34 +11,34 @@
       assert:
         fail_msg: "some vars are empty or are not defined"
         that:
-          - repo_name is defined
-          - repo_name
-          - dest is defined
-          - dest
+          - github_get_files_repo_name is defined
+          - github_get_files_repo_name
+          - github_get_files_dest is defined
+          - github_get_files_dest
 
     - name: show role vars
       debug:
         msg:
           - "[ GITHUB GET FILES ]"
-          - "repo_name: {{ repo_name }}"
-          - "branch: {{ branch | default('default_branch') }}"
-          - "dest: {{ dest }}"
-          - "force: {{ force }}"
-          - "create_dest: {{ create_dest }}"
+          - "repo_name: {{ github_get_files_repo_name }}"
+          - "branch: {{ github_get_files_branch | default('default_branch') }}"
+          - "dest: {{ github_get_files_dest }}"
+          - "force: {{ github_get_files_force }}"
+          - "create_dest: {{ github_get_files_create_dest }}"
 
 
   # add 'Authorization' header if token defined
   - name: set github http headers
     set_fact:
-      github_get_files_http_headers: "{{ github_get_files_http_headers | combine({'Authorization': 'token ' + token} if token else {}) }}"
+      github_get_files_http_headers: "{{ github_get_files_http_headers | combine({'Authorization': 'token ' + github_get_files_token} if github_get_files_token else {}) }}"
 
 
   - name: determine branch
-    when: (branch|default("")) | length == 0
+    when: (github_get_files_branch|default("")) | length == 0
     block:
-    - name: get github.com/{{ repo_name }} default branch
+    - name: get github.com/{{ github_get_files_repo_name }} default branch
       uri:
-        url: "https://api.github.com/repos/{{ repo_name }}"
+        url: "https://api.github.com/repos/{{ github_get_files_repo_name }}"
         headers: "{{ github_get_files_http_headers }}"
       retries: "{{ github_get_files_retries }}"
       delay: "{{ github_get_files_delay }}"
@@ -48,15 +48,15 @@
 
     - name: define default branch
       set_fact:
-        branch: "{{ github_get_files_default_branch.json.default_branch }}"
+        github_get_files_branch: "{{ github_get_files_default_branch.json.default_branch }}"
       check_mode: no
 
 
   - name: download files from repo
     block:
-    - name: get github.com/{{ repo_name }} filelist on branch {{ branch }}
+    - name: get github.com/{{ github_get_files_repo_name }} filelist on branch {{ github_get_files_branch }}
       uri:
-        url: "https://api.github.com/repos/{{ repo_name }}/git/trees/{{ branch }}?recursive=1"
+        url: "https://api.github.com/repos/{{ github_get_files_repo_name }}/git/trees/{{ github_get_files_branch }}?recursive=1"
         headers: "{{ github_get_files_http_headers }}"
       retries: "{{ github_get_files_retries }}"
       delay: "{{ github_get_files_delay }}"
@@ -68,22 +68,22 @@
     - fail:
         msg: |
           - "{{ github_get_files_repo_file_list.json.message }}"
-          - "check repo name '{{ repo_name }}' and branch name '{{ branch }}'"
-          - "https://api.github.com/repos/{{ repo_name }}/git/trees/{{ branch }}?recursive=1"
+          - "check repo name '{{ github_get_files_repo_name }}' and branch name '{{ github_get_files_branch }}'"
+          - "https://api.github.com/repos/{{ github_get_files_repo_name }}/git/trees/{{ github_get_files_branch }}?recursive=1"
       when: github_get_files_repo_file_list.status != 200
 
     - name: make file list
       set_fact:
-        github_get_files_path_list: "{{ github_get_files_path_list + [ file.path ] if (file.type == 'blob' and file.path not in skip_files) else [] }}"
+        github_get_files_path_list: "{{ github_get_files_path_list + [ file.path ] if (file.type == 'blob' and file.path not in github_get_files_skip_files) else [] }}"
       loop: "{{ github_get_files_repo_file_list.json.tree }}"
       loop_control:
         loop_var: file
         label: "{{ file.path }}"
       check_mode: no
 
-    - name: get github.com/{{ repo_name }} download_url list on branch {{ branch }}
+    - name: get github.com/{{ github_get_files_repo_name }} download_url list on branch {{ github_get_files_branch }}
       uri:
-        url: "https://api.github.com/repos/{{ repo_name }}/contents/{{ path }}"
+        url: "https://api.github.com/repos/{{ github_get_files_repo_name }}/contents/{{ path }}"
         headers: "{{ github_get_files_http_headers }}"
       retries: "{{ github_get_files_retries }}"
       delay: "{{ github_get_files_delay }}"
@@ -94,31 +94,31 @@
       register: github_get_files_contents_list
       check_mode: no
 
-    - name: check if {{ dest }} exists
+    - name: check if {{ github_get_files_dest }} exists
       stat:
-        path: "{{ dest }}"
+        path: "{{ github_get_files_dest }}"
       register: github_get_files_dest_stat
       check_mode: no
 
-    - name: ensure {{ dest }} exists if create_dest ({{ create_dest }})
+    - name: ensure {{ github_get_files_dest }} exists if create_dest ({{ github_get_files_create_dest }})
       file:
-        path: "{{ dest }}"
+        path: "{{ github_get_files_dest }}"
         state: directory
-        mode: "{{ create_dest_mode | default(omit) }}"
-        recurse: "{{ recurse }}"
+        mode: "{{ github_get_files_create_dest_mode | default(omit) }}"
+        recurse: "{{ github_get_files_recurse }}"
       when: "not github_get_files_dest_stat.stat.exists"
 
-    - name: get github.com/{{ repo_name }} files to {{ dest }}
+    - name: get github.com/{{ github_get_files_repo_name }} files to {{ github_get_files_dest }}
       get_url:
         url: "{{ file.json.download_url }}"
         headers: "{{ github_get_files_http_headers }}"
-        dest: "{{ dest }}/{{ file.json.name }}"
-        mode: "{{ mode | default(omit) }}"
-        force: "{{ force }}"
+        dest: "{{ github_get_files_dest }}/{{ file.json.name }}"
+        mode: "{{ github_get_files_mode | default(omit) }}"
+        force: "{{ github_get_files_force }}"
       retries: "{{ github_get_files_retries }}"
       delay: "{{ github_get_files_delay }}"
       loop: "{{ github_get_files_contents_list.results }}"
       loop_control:
         loop_var: file
-        label: "{{ dest }}/{{ file.json.path }}"
+        label: "{{ github_get_files_dest }}/{{ file.json.path }}"
 ...
